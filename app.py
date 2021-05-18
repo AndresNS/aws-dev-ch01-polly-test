@@ -1,6 +1,17 @@
 import boto3
+import json
 
-s3 = boto3.resource('s3')
+credentials = json.load(open('credentials.json', 'r'))
 
-for bucket in s3.buckets.all():
-    print(bucket.name)
+polly = boto3.client('polly', region_name='us-west-2',
+                     aws_access_key_id=credentials['aws_access_key_id'],
+                     aws_secret_access_key=credentials['aws_secret_access_key'])
+
+result = polly.synthesize_speech(Text='Hello world again!',
+                                 OutputFormat='mp3',
+                                 VoiceId='Aditi')
+
+audio = result['AudioStream'].read()
+
+with open('./audios/helloworld.mp3', 'wb') as file:
+    file.write(audio)
